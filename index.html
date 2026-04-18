@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>👹 Monster Chess</title>
+
+  <!-- Board styles -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/chessboardjs@1.0.0/www/css/chessboard.css">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: black;
+      color: red;
+      text-align: center;
+      font-family: "Creepster", cursive;
+    }
+
+    h1 {
+      font-size: 50px;
+      text-shadow: 0 0 20px red;
+    }
+
+    #board {
+      width: 420px;
+      margin: 20px auto;
+      border: 3px solid red;
+      box-shadow: 0 0 25px red;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 20px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 16px;
+      background: red;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>👹 MONSTER CHESS 👹</h1>
+
+<div id="board"></div>
+<div id="status"></div>
+
+<button onclick="resetGame()">Restart</button>
+
+<!-- Libraries (still counts as "no downloads") -->
+<script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
+<script src="https://unpkg.com/chessboardjs@1.0.0/www/js/chessboard.js"></script>
+
+<script>
+  // ===== GAME STATE =====
+  const game = new Chess();
+
+  // ===== BOARD SETUP =====
+  const board = Chessboard('board', {
+    draggable: true,
+    position: 'start',
+
+    onDrop: handleMove
+  });
+
+  // ===== PLAYER MOVE =====
+  function handleMove(source, target) {
+    const move = game.move({
+      from: source,
+      to: target,
+      promotion: 'q'
+    });
+
+    if (move === null) return 'snapback';
+
+    updateStatus();
+
+    // Bot plays after you
+    setTimeout(botMove, 300);
+  }
+
+  // ===== BOT (simple for now) =====
+  function botMove() {
+    const moves = game.moves();
+
+    if (moves.length === 0) return;
+
+    const randomMove = moves[Math.floor(Math.random() * moves.length)];
+    game.move(randomMove);
+
+    board.position(game.fen());
+    updateStatus();
+  }
+
+  // ===== STATUS TEXT =====
+  function updateStatus() {
+    let status = "";
+
+    if (game.in_checkmate()) {
+      status = "💀 CHECKMATE 💀";
+    } else if (game.in_draw()) {
+      status = "🤝 DRAW";
+    } else {
+      status = game.turn() === 'w' ? "Your move" : "Monster is thinking...";
+    }
+
+    document.getElementById("status").innerText = status;
+  }
+
+  // ===== RESET =====
+  function resetGame() {
+    game.reset();
+    board.start();
+    updateStatus();
+  }
+
+  updateStatus();
+</script>
+
+</body>
+</html>
